@@ -1,50 +1,44 @@
-name: Deploy Vite to GitHub Pages
+name: Build Vite and publish dist to hostinger branch
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install
-        run: npm ci
+      - run: npm ci
+      - run: npm run build
 
-      - name: Build
-        run: npm run build
+      - name: Publish dist only
+        run: |
+          # save dist safely
+          rm -rf /tmp/dist
+          mkdir -p /tmp/dist
+          cp -R dist/* /tmp/dist/
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+          # prevent node_modules from ever being committed
+          rm -rf node_modules dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git checkout --orphan hostinger
+          git rm -rf . || true
+
+          cp -R /tmp/dist/* .
+
+          printf "node_modules\n" > .gitignore
+
+          git add -A
+          git commit -m "Deploy dist to Hostinger" || echo "No changes"
+          git push -f origin hostinger
