@@ -2,7 +2,7 @@ import AboutUS from "./components/AboutUS";
 import ContactUS from "./components/ContactUS";
 import FooterSection from "./components/FooterSection";
 import Hero from "./components/Hero";
-import NavBar from "./components/Navbar";
+import NavBar from "./components/NavBar";
 import Program from "./components/Program";
 import Services from "./components/Services";
 import TestMonials from "./components/Testimonials";
