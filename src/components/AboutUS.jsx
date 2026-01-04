@@ -77,7 +77,7 @@ export default function AboutUS() {
                 href="#get-started"
                 className="inline-flex items-center justify-center rounded-xl bg-[#4CAF50] px-6 py-3 text-white font-semibold hover:bg-[#43a047] transition"
               >
-                Start Your Journey Today
+                Start Journey Today
               </a>
             </div>
           </div>
