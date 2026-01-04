@@ -1,12 +1,11 @@
-name: Build Vite and publish dist to hostinger branch
-
+name: Build and publish dist to hostinger branch
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,14 +18,13 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Publish dist only
+      - name: Publish dist only to hostinger branch
         run: |
-          # save dist safely
           rm -rf /tmp/dist
           mkdir -p /tmp/dist
           cp -R dist/* /tmp/dist/
 
-          # prevent node_modules from ever being committed
+          # prevent committing node_modules
           rm -rf node_modules dist
 
           git config user.name "github-actions"
@@ -34,11 +32,11 @@ jobs:
 
           git checkout --orphan hostinger
           git rm -rf . || true
+          rm -rf node_modules
 
           cp -R /tmp/dist/* .
-
           printf "node_modules\n" > .gitignore
 
           git add -A
-          git commit -m "Deploy dist to Hostinger" || echo "No changes"
+          git commit -m "Deploy build" || echo "No changes"
           git push -f origin hostinger
