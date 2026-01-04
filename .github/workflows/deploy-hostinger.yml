@@ -18,12 +18,17 @@ jobs:
 
       - name: Publish dist to deploy branch
         run: |
+          rm -rf /tmp/dist
+          mkdir -p /tmp/dist
+          cp -R dist/* /tmp/dist/
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git checkout --orphan deploy
-          git rm -rf .
-          cp -R dist/* .
-          rm -rf dist
-          git add .
+          git rm -rf . || true
+
+          cp -R /tmp/dist/* .
+
+          git add -A
           git commit -m "Deploy build" || echo "No changes"
           git push -f origin deploy
